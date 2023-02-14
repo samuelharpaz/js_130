@@ -18,3 +18,25 @@ It either has:
 
 ## 4. Lexical Scope
 Defines whether a variable is in a block or function's **inner** or **outer** scope.
+
+## 5. Hoisting
+JS engines operate in 2 phases: 1) **creation phase** 2) **execution phase**
+
+### Creation Phase
+- finds and records variable, function, and class declarations
+- designates scope of each declaration
+
+`Var`
+- hoisted variable is given the value `undefined`
+
+`Let`, `Const`, and `class declarations`
+- hoisted variable is uninitialized, or unset - **TDZ** = Temporal Dead Zone, attempt to access results in a Reference Error
+
+`Function Declarations`
+- entire body is hoisted, so function is actually useable prior to definition!
+
+`Warning:`
+- Don't nest function declarations inside blocks (e.g. `if` blocks) - inconsistent behavior
+
+`Function Expressions`
+- same as any variable declarations

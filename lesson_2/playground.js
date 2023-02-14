@@ -1,10 +1,9 @@
-function foo() {
-  console.log(a); // 1
+wizard();
+var wizard = 'Harry';
+console.log(wizard);
 
-  if (false) {
-    var a = 1;
-  }
-
+function wizard() {
+  console.log('hey wizard');
 }
 
-foo();
+// wizard();
