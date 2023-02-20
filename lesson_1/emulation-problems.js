@@ -1,18 +1,14 @@
-// 1. filter
-
-function filter(array, callback) {
-  const result = [];
+// filter
+function filter(array, fn, thisArg) {
+  const filtered = [];
 
   for (let idx = 0; idx < array.length; idx++) {
-    const currentEl = array[idx];
-
-    if (callback(currentEl, idx, array)) {
-      result.push(currentEl);
-    }
+    const el = array[idx];
+    if (fn.call(thisArg, el, idx, array)) filtered.push(el);
   }
 
-  return result;
-};
+  return filtered;
+}
 
 // let numbers = [1, 2, 3, 4, 5];
 // console.log(filter(numbers, number => number > 3)); // => [ 4, 5 ]
@@ -21,19 +17,19 @@ function filter(array, callback) {
 
 // let values = [1, "abc", null, true, undefined, "xyz"];
 // console.log(filter(values, value => typeof value === "string"));
-// => [ 'abc', 'xyz' ]
+// // => [ 'abc', 'xyz' ]
 
-// 2. map
-const map = function(array, callback) {
-  const mapped = [];
+// map
+const map = function(arr, fn, thisArg) {
+  const transformed = [];
 
-  for (let idx = 0; idx < array.length; idx++) {
-    const el = array[idx];
-    mapped.push(callback(el, idx, array));
+  for (let idx = 0; idx < arr.length; idx++) {
+    const el = arr[idx];
+    transformed.push(fn.call(thisArg, el, idx, arr));
   }
 
-  return mapped;
-}
+  return transformed;
+};
 
 // let numbers = [1, 2, 3, 4, 5];
 // console.log(map(numbers, number => number * 3));  // => [ 3, 6, 9, 12, 15 ]
@@ -45,23 +41,22 @@ const map = function(array, callback) {
 // console.log(map(values, value => String(value)));
 // => [ '1', 'abc', 'null', 'true', 'undefined', 'xyz' ]
 
-// 3. reduce
+// reduce
+function reduce(arr, fn, initialVal) {
+  let accumulator = initialVal;
+  let index = 0;
 
-function reduce(array, callback, initialVal) {
-  const arrCopy = [...array];
-
-  if (!initialVal) {
-    initialVal = arrCopy.shift();
+  if (typeof accumulator === 'undefined') {
+    accumulator = arr[0];
+    index = 1;
   }
 
-  let total = initialVal;
-
-  for (let idx = 0; idx < arrCopy.length; idx += 1) {
-    const el = arrCopy[idx];
-    total = callback(total, el);
+  while (index < arr.length) {
+    accumulator = fn(accumulator, arr[index], index, arr);
+    index += 1;
   }
 
-  return total;
+  return accumulator
 }
 
 // let numbers = [1, 2, 3, 4, 5];
@@ -69,65 +64,54 @@ function reduce(array, callback, initialVal) {
 // console.log(reduce(numbers, (prod, number) => prod * number));     // => 120
 // console.log(reduce(numbers, (prod, number) => prod * number, 3));  // => 360
 // console.log(reduce([], (accum, number) => accum + number, 10));    // => 10
-// console.log(reduce([], (accum, number) => accum + number)); // => undefined
+// console.log(reduce([], (accum, number) => accum + number));
+// // => undefined
 
 // let stooges = ["Mo", "Larry", "Curly"];
-
 // console.log(reduce(stooges, (reversedStooges, stooge) => {
 //   reversedStooges.unshift(stooge);
 //   return reversedStooges;
 // }, []));
 // => ["Curly", "Larry", "Mo"]
 
-// filter using reduce
+// filter based on reduce
+function filter(arr, fn, thisArg) {
+  return arr.reduce((filteredArr, value, idx, array) => {
+    if (fn.call(thisArg, value, idx, array)) {
+      filteredArr.push(value);
+    }
+    return filteredArr;
+  }, []);
+}
 
-// function filter2(arr, cb) {
-//   return arr.reduce((filteredArray, currEl) => {
-//     if (cb(currEl)) {
-//       filteredArray.push(currEl);
-//     }
-
-//     return filteredArray;
-//   }, []);
-// }
-
-// let numbers = [1, 2, 3, 4, 5];
-// console.log(filter2(numbers, number => number > 3)); // => [ 4, 5 ]
-// console.log(filter2(numbers, number => number < 0)); // => []
-// console.log(filter2(numbers, () => true));           // => [ 1, 2, 3, 4, 5 ]
-
-// let values = [1, "abc", null, true, undefined, "xyz"];
-// console.log(filter2(values, value => typeof value === "string"));
-// // => [ 'abc', 'xyz' ]
-
-// map function using reduce
-function map2(arr, cb) {
-  return arr.reduce((transformedArr, curr) => {
-    transformedArr.push(cb(curr));
+// map based on reduce
+function map2(arr, fn, thisArg) {
+  return arr.reduce((transformedArr, el, idx, array) => {
+    transformedArr.push(fn.call(thisArg, el, idx, array));
     return transformedArr;
   }, []);
 }
 
-// let numbers = [1, 2, 3, 4, 5];
-// console.log(map(numbers, number => number * 3));  // => [ 3, 6, 9, 12, 15 ]
-// console.log(map(numbers, number => number + 1));  // => [ 2, 3, 4, 5, 6 ]
-// console.log(map(numbers, () => false));
-// // => [ false, false, false, false, false ]
+// const nums = [250, 300, 350, 400, 450];
 
-// let values = [1, "abc", null, true, undefined, "xyz"];
-// console.log(map(values, value => String(value)));
-// => [ '1', 'abc', 'null', 'true', 'undefined', 'xyz' ]
+// console.log(map2(nums, val => val + 50));
 
-function fizzBuzzReducer(acc, element) {
-  if (element % 15 === 0) return `${acc}Fizz Buzz\n`;
-  if (element % 5 === 0) return `${acc}Fizz\n`;
-  if (element % 3 === 0) return `${acc}Buzz\n`;
-  return `${acc}${element}\n`;
-}
+// includes
+Array.prototype.myIncludes = function(query, fromIdx = 0) {
+  if (!Number.isInteger(fromIdx)) fromIdx = 0;
+  if (fromIdx >= this.length) return false;
+  if (fromIdx < -this.length) fromIdx = 0;
+  if (fromIdx < 0) {
+    fromIdx = this.length + fromIdx;
+  }
+  
+  for (let count = fromIdx; count < this.length; count++) {
+    const el = this[count];
+    if (query === el) return true;
+  }
 
-const nums = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9,
-  10, 11, 12, 13, 14, 15
-];
+  return false;
+};
 
-console.log(nums.reduce(fizzBuzzReducer, ''));
+const pets = ['cat', 'dog', 'bat'];
+console.log(pets.myIncludes('dog', 5));
